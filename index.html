@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UAECOB · Estudio Visual · Bogotá 2020</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- Estilos -->
+<link rel="stylesheet" href="css/styles.css">
+
+<!-- D3.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+</head>
+<body>
+
+<!-- Tooltip global -->
+<div id="tooltip"></div>
+
+<!-- ════════════════════════════════════════════════════════
+     SIDEBAR — Navegación
+════════════════════════════════════════════════════════ -->
+<nav id="sidebar">
+  <div class="sb-brand">
+    <span class="tag">Estudio visual · Ene–Ago 2020</span>
+    <h1>UAECOB<br>Bogotá D.C.</h1>
+    <p>Unidad Administrativa Especial<br>Cuerpo Oficial de Bomberos</p>
+  </div>
+
+  <!-- KPIs rápidos -->
+  <div class="sb-stats">
+    <div class="sb-stat">
+      <div class="sv">20.228</div>
+      <div class="sl">Incidentes</div>
+    </div>
+    <div class="sb-stat">
+      <div class="sv">1.135</div>
+      <div class="sl">Heridos</div>
+    </div>
+    <div class="sb-stat">
+      <div class="sv">1.387</div>
+      <div class="sl">Rescatados</div>
+    </div>
+    <div class="sb-stat">
+      <div class="sv">9 min</div>
+      <div class="sl">T. Resp.</div>
+    </div>
+  </div>
+
+  <!-- Estado de carga del CSV -->
+  <div id="csv-status">
+    <div class="csv-icon">📂</div>
+    <div class="csv-info">
+      <div class="csv-label" id="csv-label">Cargando datos…</div>
+      <div class="csv-sub"  id="csv-sub">Leyendo CSV de la carpeta</div>
+    </div>
+  </div>
+
+  <div class="sb-section-lbl">Gráficas del estudio</div>
+
+  <a class="nav-item active" id="nav-g3" data-g="g3">
+    <div class="n-badge">3</div>
+    <div class="n-info">
+      <div class="n-num">Análisis temporal</div>
+      <div class="n-title">Incidentes por hora del día</div>
+    </div>
+  </a>
+
+  <a class="nav-item" id="nav-g4" data-g="g4">
+    <div class="n-badge">4</div>
+    <div class="n-info">
+      <div class="n-num">Operativa</div>
+      <div class="n-title">Tiempo de respuesta por localidad</div>
+    </div>
+  </a>
+
+  <a class="nav-item" id="nav-g8" data-g="g8">
+    <div class="n-badge">8</div>
+    <div class="n-info">
+      <div class="n-num">Socioeconómica</div>
+      <div class="n-title">Incidentes por estrato</div>
+    </div>
+  </a>
+
+  <a class="nav-item" id="nav-g9" data-g="g9">
+    <div class="n-badge">9</div>
+    <div class="n-info">
+      <div class="n-num">Causalidad</div>
+      <div class="n-title">Incidentes por causa</div>
+    </div>
+  </a>
+
+  <a class="nav-item" id="nav-g12" data-g="g12">
+    <div class="n-badge">12</div>
+    <div class="n-info">
+      <div class="n-num">Territorial</div>
+      <div class="n-title">Rescatados por localidad</div>
+    </div>
+  </a>
+
+  <div class="sb-section-lbl">Proyecto</div>
+
+  <a class="nav-item" id="nav-about" data-g="about">
+    <div class="n-badge">ℹ</div>
+    <div class="n-info">
+      <div class="n-num">Información</div>
+      <div class="n-title">Acerca del dataset</div>
+    </div>
+  </a>
+
+  <div class="sb-footer">
+    Fuente: Datos Abiertos Bogotá<br>
+    UAECOB · Corte 31 Ago 2020<br><br>
+    El archivo CSV se carga<br>
+    automáticamente desde la<br>
+    carpeta del proyecto.
+  </div>
+</nav>
+
+<!-- ════════════════════════════════════════════════════════
+     ÁREA PRINCIPAL
+════════════════════════════════════════════════════════ -->
+<div id="main">
+
+  <!-- Topbar -->
+  <div id="topbar">
+    <div class="topbar-title">Estudio de Incidentes · Bogotá D.C. 2020</div>
+    <div class="topbar-right">
+      <span class="topbar-pill">20.228 registros</span>
+    </div>
+  </div>
+
+  <div id="content">
+
+    <!-- ════════════════════════════════════════════════════
+         G3 · Incidentes por hora del día
+    ════════════════════════════════════════════════════ -->
+    <section class="chart-section visible" id="sec-g3">
+
+      <div class="section-hero">
+        <span class="sh-tag">Gráfica 3 · Análisis temporal</span>
+        <h2>Incidentes por hora del día</h2>
+        <p>Curva de demanda horaria de 0h a 23h · 20.228 registros analizados durante el año 2020</p>
+      </div>
+
+      <div class="analysis-panel">
+        <div class="a-card a-ctx">
+          <span class="a-icon">📌</span>
+          <div class="a-label">Contexto</div>
+          <div class="a-text">El análisis horario permite identificar las franjas de mayor demanda operativa para garantizar la disponibilidad de personal y unidades en momentos críticos. Es el insumo más directamente accionable para la planificación táctica del servicio de la UAECOB.</div>
+        </div>
+        <div class="a-card a-ana">
+          <span class="a-icon">🔍</span>
+          <div class="a-label">Análisis</div>
+          <div class="a-text">Se identifican <strong>dos picos bien definidos</strong>: el primero a las <strong>9h (1.943 incidentes)</strong> y el segundo a las <strong>15h–16h (1.772)</strong>. La actividad mínima ocurre entre <strong>3h y 5h</strong> de la madrugada (177–209 incidentes).</div>
+        </div>
+        <div class="a-card a-int">
+          <span class="a-icon">💡</span>
+          <div class="a-label">Interpretación</div>
+          <div class="a-text">La curva bimodal es característica de ciudades latinoamericanas con <strong>jornada laboral partida</strong>. El pico de las 9h coincide con el inicio laboral e industrial; el de las 15h–16h con la reactivación post-almuerzo y regreso a casa.</div>
+        </div>
+        <div class="a-card a-con">
+          <span class="a-icon">✅</span>
+          <div class="a-label">Conclusión</div>
+          <div class="a-text">La demanda se concentra en dos franjas críticas: <strong>8h–11h</strong> y <strong>14h–17h</strong>. La UAECOB debe garantizar máxima disponibilidad en esas ventanas. Las madrugadas permiten programar mantenimientos y relevos sin comprometer la respuesta.</div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div class="cc-left">
+            <div class="chart-num-badge" style="background:#264ca3">3</div>
+            <div>
+              <h3>Incidentes por hora del día</h3>
+              <div class="cc-sub">Curva de demanda horaria · Línea + área + puntos interactivos</div>
+            </div>
+          </div>
+          <div class="chart-kpi">
+            <div class="kpi-item">
+              <div class="kv" id="kpi-g3-total">—</div>
+              <div class="kl">Total</div>
+            </div>
+            <div class="kpi-item">
+              <div class="kv" id="kpi-g3-pico" style="font-size:14px">—</div>
+              <div class="kl">Pico</div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-body"><svg id="svg-g3"></svg></div>
+        <div class="chart-legend">
+          <span><span class="leg-dot" style="background:#264ca3"></span>Incidentes por hora</span>
+          <span><span class="leg-dot" style="background:#c84b31"></span>Hora pico</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ════════════════════════════════════════════════════
+         G4 · Tiempo de respuesta por localidad
+    ════════════════════════════════════════════════════ -->
+    <section class="chart-section" id="sec-g4">
+
+      <div class="section-hero">
+        <span class="sh-tag">Gráfica 4 · Análisis operativo</span>
+        <h2>Tiempo de respuesta por localidad</h2>
+        <p>Mediana en minutos por localidad · Comparación territorial del desempeño operativo · Outliers &gt; 120 min excluidos</p>
+      </div>
+
+      <div class="analysis-panel">
+        <div class="a-card a-ctx">
+          <span class="a-icon">📌</span>
+          <div class="a-label">Contexto</div>
+          <div class="a-text">El tiempo de respuesta mide el intervalo entre el reporte del incidente y la llegada de la unidad. Se usa la mediana para evitar distorsión por valores extremos. Se excluyeron 25 registros con tiempos superiores a 120 minutos.</div>
+        </div>
+        <div class="a-card a-ana">
+          <span class="a-icon">🔍</span>
+          <div class="a-label">Análisis</div>
+          <div class="a-text"><strong>Los Mártires</strong> (6 min) y <strong>Antonio Nariño</strong> (7 min) tienen los mejores tiempos. <strong>Ciudad Bolívar</strong> y <strong>Rafael Uribe</strong> registran los más altos (<strong>11 min</strong>). La brecha entre el mejor y el peor tiempo es de <strong>5 minutos</strong>.</div>
+        </div>
+        <div class="a-card a-int">
+          <span class="a-icon">💡</span>
+          <div class="a-label">Interpretación</div>
+          <div class="a-text">Las localidades centrales se benefician de mayor densidad de estaciones y mejor malla vial. Las periféricas del sur presentan mayores tiempos por distancias y congestión. Paradójicamente concentran mayor vulnerabilidad socioeconómica.</div>
+        </div>
+        <div class="a-card a-con">
+          <span class="a-icon">✅</span>
+          <div class="a-label">Conclusión</div>
+          <div class="a-text">Existe una <strong>brecha de cobertura territorial</strong> entre localidades centrales y periféricas del sur. Se recomienda evaluar la apertura de subestaciones en Ciudad Bolívar, Rafael Uribe y Bosa para reducir la inequidad.</div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div class="cc-left">
+            <div class="chart-num-badge" style="background:#c8923a">4</div>
+            <div>
+              <h3>Tiempo de respuesta mediano por localidad</h3>
+              <div class="cc-sub">Gráfica de línea con puntos · Localidades ordenadas por tiempo</div>
+            </div>
+          </div>
+          <div class="chart-kpi">
+            <div class="kpi-item">
+              <div class="kv" id="kpi-g4-med">—</div>
+              <div class="kl">Mediana general</div>
+            </div>
+            <div class="kpi-item">
+              <div class="kv" id="kpi-g4-loc" style="font-size:13px">—</div>
+              <div class="kl">Más rápida</div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-body"><svg id="svg-g4"></svg></div>
+        <div class="chart-legend">
+          <span><span class="leg-dot" style="background:#2d7a4f"></span>≤ 9 min</span>
+          <span><span class="leg-dot" style="background:#c84b31"></span>&gt; 9 min</span>
+          <span><span class="leg-dot" style="background:#2a9d8f"></span>Mediana general (9 min)</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ════════════════════════════════════════════════════
+         G8 · Por estrato socioeconómico
+    ════════════════════════════════════════════════════ -->
+    <section class="chart-section" id="sec-g8">
+
+      <div class="section-hero">
+        <span class="sh-tag">Gráfica 8 · Análisis socioeconómico</span>
+        <h2>Incidentes por estrato socioeconómico</h2>
+        <p>Distribución de los 20.228 incidentes según el estrato del predio afectado · Estratos 1–6 + categorías especiales</p>
+      </div>
+
+      <div class="analysis-panel">
+        <div class="a-card a-ctx">
+          <span class="a-icon">📌</span>
+          <div class="a-label">Contexto</div>
+          <div class="a-text">En Colombia el estrato (1 al 6) clasifica inmuebles según condiciones de vivienda y entorno. El estrato 1 es el más precario y el 6 el más alto. Esta variable permite relacionar la incidencia de emergencias con el nivel socioeconómico.</div>
+        </div>
+        <div class="a-card a-ana">
+          <span class="a-icon">🔍</span>
+          <div class="a-label">Análisis</div>
+          <div class="a-text">El <strong>estrato 3</strong> concentra el 41% (8.299) y el estrato 2 el 32% (6.466). Entre estos dos se agrupa el <strong>73%</strong> de todos los eventos. El estrato 6 registra 457 casos (2,3%). Categorías especiales: <strong>744 registros</strong>.</div>
+        </div>
+        <div class="a-card a-int">
+          <span class="a-icon">💡</span>
+          <div class="a-label">Interpretación</div>
+          <div class="a-text">La concentración en estratos 2 y 3 refleja que son los más numerosos en predios y población en Bogotá, <strong>no necesariamente mayor vulnerabilidad per cápita</strong>. El bajo número en estrato 1 podría indicar subregistro o menor cobertura.</div>
+        </div>
+        <div class="a-card a-con">
+          <span class="a-icon">✅</span>
+          <div class="a-label">Conclusión</div>
+          <div class="a-text">Es indispensable normalizar por número de predios o habitantes por estrato. El bajo número en estrato 1 puede reflejar una <strong>brecha de acceso al servicio</strong> en zonas vulnerables, lo que requiere atención prioritaria.</div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div class="cc-left">
+            <div class="chart-num-badge" style="background:#c84b31">8</div>
+            <div>
+              <h3>Incidentes por estrato socioeconómico</h3>
+              <div class="cc-sub">Barras verticales · Color según nivel del estrato</div>
+            </div>
+          </div>
+          <div class="chart-kpi">
+            <div class="kpi-item">
+              <div class="kv" id="kpi-g8-tot">—</div>
+              <div class="kl">Total</div>
+            </div>
+            <div class="kpi-item">
+              <div class="kv" id="kpi-g8-lider" style="font-size:13px">—</div>
+              <div class="kl">Estrato líder</div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-body"><svg id="svg-g8"></svg></div>
+        <div class="chart-legend">
+          <span><span class="leg-dot" style="background:#c8923a"></span>Estratos bajos</span>
+          <span><span class="leg-dot" style="background:#c84b31"></span>Estrato 3 (mayoría)</span>
+          <span><span class="leg-dot" style="background:#7c3abf"></span>Estratos altos</span>
+          <span><span class="leg-dot" style="background:#9095ab"></span>Categorías especiales</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ════════════════════════════════════════════════════
+         G9 · Por causa registrada
+    ════════════════════════════════════════════════════ -->
+    <section class="chart-section" id="sec-g9">
+
+      <div class="section-hero">
+        <span class="sh-tag">Gráfica 9 · Análisis de causalidad</span>
+        <h2>Incidentes por causa registrada</h2>
+        <p>Origen del incidente según la clasificación oficial de la UAECOB · Top 8 causas más frecuentes</p>
+      </div>
+
+      <div class="analysis-panel">
+        <div class="a-card a-ctx">
+          <span class="a-icon">📌</span>
+          <div class="a-label">Contexto</div>
+          <div class="a-text">La causa describe el origen del evento según el equipo respondiente. Esta variable es clave para diseñar campañas de prevención focalizada y orientar recursos hacia los factores de riesgo más frecuentes en la ciudad.</div>
+        </div>
+        <div class="a-card a-ana">
+          <span class="a-icon">🔍</span>
+          <div class="a-label">Análisis</div>
+          <div class="a-text"><strong>No aplica</strong> domina con 8.544 (42%), asociada a prevenciones y falsas alarmas. Entre causas reales, <strong>Accidental</strong> lidera (4.122), seguida de <strong>Por orden</strong> (3.460) y <strong>Natural</strong> (2.552). Provocada e Indeterminada suman 1.333.</div>
+        </div>
+        <div class="a-card a-int">
+          <span class="a-icon">💡</span>
+          <div class="a-label">Interpretación</div>
+          <div class="a-text">Los incidentes accidentales son los más frecuentes entre las emergencias reales, señalando la importancia de <strong>programas de educación en seguridad</strong> del hogar, vial e industrial. Las causas provocadas requieren articulación con autoridades.</div>
+        </div>
+        <div class="a-card a-con">
+          <span class="a-icon">✅</span>
+          <div class="a-label">Conclusión</div>
+          <div class="a-text">La <strong>accidentalidad es la principal causa</strong>. Una reducción del 10% liberaría más de <strong>400 servicios al año</strong>. Se recomiendan campañas focalizadas en seguridad del hogar, vial e industrial en Suba, Kennedy y Engativá.</div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div class="cc-left">
+            <div class="chart-num-badge" style="background:#2d7a4f">9</div>
+            <div>
+              <h3>Incidentes por causa registrada</h3>
+              <div class="cc-sub">Barras horizontales · Top 8 causas más frecuentes</div>
+            </div>
+          </div>
+          <div class="chart-kpi">
+            <div class="kpi-item">
+              <div class="kv" id="kpi-g9-tot">—</div>
+              <div class="kl">Total</div>
+            </div>
+            <div class="kpi-item">
+              <div class="kv" id="kpi-g9-lider" style="font-size:13px">—</div>
+              <div class="kl">Causa principal</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Selector tipo de gráfica G9 ── -->
+        <div class="g9-controls">
+          <span class="g9-ctrl-label">Visualización:</span>
+          <div class="g9-toggle">
+            <button class="g9-btn active" data-type="bars" id="g9-btn-bars">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                <rect x="2" y="9" width="3" height="5" rx="1"/>
+                <rect x="6.5" y="6" width="3" height="8" rx="1"/>
+                <rect x="11" y="2" width="3" height="12" rx="1"/>
+              </svg>
+              Barras
+            </button>
+            <button class="g9-btn" data-type="donut" id="g9-btn-donut">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4">
+                <circle cx="8" cy="8" r="5.6"/>
+              </svg>
+              Dona
+            </button>
+          </div>
+        </div>
+
+        <div class="chart-body"><svg id="svg-g9"></svg></div>
+        <div class="chart-legend" id="g9-legend">
+          <span><span class="leg-dot" style="background:#2d7a4f"></span>Número de incidentes por causa</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ════════════════════════════════════════════════════
+         G12 · Rescatados por localidad
+    ════════════════════════════════════════════════════ -->
+    <section class="chart-section" id="sec-g12">
+
+      <div class="section-hero">
+        <span class="sh-tag">Gráfica 12 · Análisis territorial</span>
+        <h2>Personas rescatadas por localidad</h2>
+        <p>Mapa de burbujas proporcionales sobre la geografía de Bogotá D.C. · Ranking lateral con valores</p>
+      </div>
+
+      <div class="analysis-panel">
+        <div class="a-card a-ctx">
+          <span class="a-icon">📌</span>
+          <div class="a-label">Contexto</div>
+          <div class="a-text">El rescate implica una intervención activa para extraer a una persona de peligro. A diferencia de los heridos, los rescatados no necesariamente presentan lesiones graves. Ocurre en incendios domésticos, accidentes de tránsito y emergencias en altura.</div>
+        </div>
+        <div class="a-card a-ana">
+          <span class="a-icon">🔍</span>
+          <div class="a-label">Análisis</div>
+          <div class="a-text"><strong>Suba</strong> lidera con 93 rescatados (12,9%), seguida de Usaquén (80) y Kennedy (75). Distribución de género equilibrada: <strong>~50%/50%</strong>, a diferencia de los heridos donde los hombres son el 64%.</div>
+        </div>
+        <div class="a-card a-int">
+          <span class="a-icon">💡</span>
+          <div class="a-label">Interpretación</div>
+          <div class="a-text">La paridad de género en rescates contrasta con la brecha en heridos. Sugiere que los rescates ocurren en <strong>entornos domésticos</strong> donde ambos géneros están igualmente expuestos, a diferencia de los riesgos laborales que sobreexponen a hombres.</div>
+        </div>
+        <div class="a-card a-con">
+          <span class="a-icon">✅</span>
+          <div class="a-label">Conclusión</div>
+          <div class="a-text">La distribución refleja <strong>densidad poblacional y cobertura del servicio</strong>. Las localidades del sur (Ciudad Bolívar, Usme) muestran valores menores pese a su vulnerabilidad, lo que puede indicar déficit. Se recomienda fortalecer la capacidad de rescate en el sur.</div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div class="cc-left">
+            <div class="chart-num-badge" style="background:#2d7a4f">12</div>
+            <div>
+              <h3>Rescatados por localidad — Mapa de burbujas</h3>
+              <div class="cc-sub">Proyección geográfica de Bogotá D.C. · Burbujas proporcionales + ranking</div>
+            </div>
+          </div>
+          <div class="chart-kpi">
+            <div class="kpi-item">
+              <div class="kv" id="kpi-g12-tot">—</div>
+              <div class="kl">Total</div>
+            </div>
+            <div class="kpi-item">
+              <div class="kv" id="kpi-g12-lider" style="font-size:13px">—</div>
+              <div class="kl">Localidad líder</div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-body"><svg id="svg-g12"></svg></div>
+        <div class="chart-legend">
+          <span><span class="leg-dot" style="background:#c3ead4"></span>Menos rescatados</span>
+          <span><span class="leg-dot" style="background:#2d7a4f"></span>Más rescatados</span>
+          <span style="color:#9095ab;font-size:11px">Tamaño y color proporcionales al número</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ════════════════════════════════════════════════════
+         SECCIÓN · Acerca del dataset
+    ════════════════════════════════════════════════════ -->
+    <section class="chart-section" id="sec-about">
+
+      <div class="section-hero">
+        <span class="about-pill">Acerca del proyecto</span>
+        <h2 class="about-section-title">Dataset · Metodología · Autores</h2>
+        <p>Información sobre la fuente de datos, las tecnologías empleadas y los autores responsables del estudio visual de los incidentes atendidos por la UAECOB durante el año 2020.</p>
+      </div>
+
+      <div class="about-grid">
+
+        <!-- ── Fuente de datos ── -->
+        <div class="about-card">
+          <div class="ab-icon">📁</div>
+          <h3>Fuente de datos</h3>
+          <div class="ab-list">
+            <b>Nombre:</b> Incidentes atendidos por UAECOB<br>
+            <b>Entidad:</b> Unidad Administrativa Especial Cuerpo Oficial de Bomberos de Bogotá<br>
+            <b>Periodo:</b> Enero – Agosto 2020<br>
+            <b>Registros:</b> 20.228<br>
+            <b>URL:</b> <a href="https://datosabiertos.bogota.gov.co" target="_blank" rel="noopener">datosabiertos.bogota.gov.co</a>
+          </div>
+        </div>
+
+        <!-- ── Autores ── -->
+        <div class="about-card">
+          <div class="ab-icon">👨‍💻</div>
+          <h3>Autores</h3>
+          <div class="ab-list">
+            <div class="ab-author">
+              <div class="ab-author-name">Juan Carlos Rojas Lizarazo</div>
+              <div class="ab-author-affil">Fundación Universitaria Los Libertadores</div>
+            </div>
+            <div class="ab-author">
+              <div class="ab-author-name">Brayan Andrés Sierra Zambrano</div>
+              <div class="ab-author-affil">Fundación Universitaria Los Libertadores</div>
+            </div>
+            <div class="ab-footer">Herramientas y Visualización de Datos · 2026</div>
+          </div>
+        </div>
+
+        <!-- ── Tecnologías ── -->
+        <div class="about-card">
+          <div class="ab-icon">🛠️</div>
+          <h3>Tecnologías</h3>
+          <div class="ab-list">
+            <b>Visualización:</b> D3.js v7<br>
+            <b>Lenguaje:</b> JavaScript ES6+<br>
+            <b>Estilos:</b> CSS3 (Grid + Flexbox)<br>
+            <b>Fuentes:</b> DM Serif Display + DM Sans + DM Mono<br>
+            <b>Despliegue:</b> Carpeta local / Live Server
+          </div>
+        </div>
+
+        <!-- ── Visualizaciones ── -->
+        <div class="about-card">
+          <div class="ab-icon">📊</div>
+          <h3>Visualizaciones</h3>
+          <div class="ab-list">
+            <b>G3:</b> Área/línea — Incidentes por hora<br>
+            <b>G4:</b> Puntos — T. respuesta por localidad<br>
+            <b>G8:</b> Barras — Estrato socioeconómico<br>
+            <b>G9:</b> Barras — Causas registradas<br>
+            <b>G12:</b> Mapa coroplético — Rescatados
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- Lógica D3.js -->
+<script src="js/charts.js"></script>
+</body>
+</html>
